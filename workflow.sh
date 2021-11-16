@@ -19,18 +19,23 @@ for PKGFILES in $(ls  ${DIR}/*.pkg)
 		echo "Start wrapper for package.."  >>/tmp/IntuneAppUtil.log
 
 		# Start Wrapping tool and save output in the same directory as the source.
-		/usr/local/bin/IntuneAppUtil -c "${PKGFILES}" -o "${DIR}/intunemac/" -v >>/tmp/IntuneAppUtil.log
+		PACKAGENAME=$(basename "${PKGFILES}") 
+		if [[ -f "${DIR}/intunemac/${PACKAGENAME}.intunemac" ]]; then  
+	            tstamp=$(date +%s)
+			echo "***** Destiantion file exist $PACKAGENAME" >>/tmp/IntuneAppUtil.log
+		    mv "${DIR}/intunemac/${PACKAGENAME}.intunemac" "${DIR}/intunemac/${PACKAGENAME}.intunemac.${tstamp}"
+		fi	
+		/usr/local/bin/IntuneAppUtil -c "${PKGFILES}" -o "${DIR}/intunemac" -v >>/tmp/IntuneAppUtil.log
 		if [[ $? -eq 0 ]]; then
 			mv "${PKGFILES}" "${DIR}/source_packages/"
 		else
 			echo "***** ERRROR on processing file $1" >>/tmp/IntuneAppUtil.log
 			mv "${PKGFILES}" "${DIR}/source_failed/"
 		fi
-
+		
 	else 
 		echo "***** ERRROR unknown package format $PKGFILES" >>/tmp/IntuneAppUtil.log
 	fi
 
 done
 IFS="$OIFS"
-
